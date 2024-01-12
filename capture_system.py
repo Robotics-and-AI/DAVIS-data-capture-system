@@ -98,10 +98,10 @@ class CaptureSystem:
             final_times_list = self._get_times_list()
 
             if recording_mode == "1":
-                self._file_manager.write_csv_file(final_times_list,first_ts,csv_file_dir,False,"timestamps") # Without labels
+                self._file_manager.write_csv_file(final_times_list,first_ts,csv_file_dir,False) # Without labels
                 
             elif recording_mode == "2":
-                self._file_manager.write_csv_file(final_times_list,first_ts,csv_file_dir,True, "timestamps") # With labels
+                self._file_manager.write_csv_file(final_times_list,first_ts,csv_file_dir,True) # With labels
                 
             self._safe_io.print_info(f"Recording duration: {(self._stop_time-self.start_time):.2f} seconds")
             current_attempt += 1
