@@ -1,5 +1,4 @@
 from safe_io import SafeIO
-import constants as const
 
 import numpy as np
 import os
@@ -32,6 +31,7 @@ class FileManager:
         self._N_BYTES = 8
         self._MASK = [0x003ff000,0x7fc00000,0x800,0]
         self._SHIFT = [12,22,11,31]
+        self._OUTPUT_DIR = os.path.join(os.path.abspath(""),"data")
 
     # ------------ AEDAT TO NPY FILE METHOD ------------
 
@@ -116,9 +116,9 @@ class FileManager:
         out_file_dir = out_file_dir[0].decode()
         
         if primitive:
-            aedat_file_dir = os.path.join(const.OUTPUT_DIR, primitive, f"{task_name}_{current_attempt}.aedat")
+            aedat_file_dir = os.path.join(self._OUTPUT_DIR, primitive, f"{task_name}_{current_attempt}.aedat")
         else:
-            aedat_file_dir = os.path.join(const.OUTPUT_DIR, f"{task_name}_{current_attempt}.aedat")
+            aedat_file_dir = os.path.join(self._OUTPUT_DIR, f"{task_name}_{current_attempt}.aedat")
         
         shutil.move(out_file_dir, aedat_file_dir)
 

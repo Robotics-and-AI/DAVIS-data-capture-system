@@ -37,13 +37,15 @@ class CaptureSystem:
         self._file_name = b"a"
 
         # Arduino variables
+        self._BOARD_TYPE = "Genuino Uno"
         self._is_reading_serial = False
         self._serial_thread = threading.Thread(target = self._read_serial)
         
         # Other variables
         self._stop_time = 0.0
         self._times_list = []
-
+        self._TIME_PRESS_BUTTON = 0 # Time (sec) wait after pressing button. Default: 0
+        self._OUTPUT_DIR = os.path.join(os.path.abspath(""),"data")
 
     # ------------ MAIN RECORDING METHOD ------------
 
@@ -60,6 +62,9 @@ class CaptureSystem:
 
         primitive = ""
         if recording_mode == "1":
+            
+            #TODO: Get list of primitives automatically by searching for folders
+            
             self._safe_io.print_info("Available primitives: ")
             for element in const.PRIMITIVES:
                 self._safe_io.print_info(f"{element}")
@@ -70,13 +75,13 @@ class CaptureSystem:
                     self._safe_io.print_info(f"{element}")
                 primitive = self._safe_io.safe_input("Insert name of primitive:")
 
-            list_existing_files = glob.glob(os.path.join(const.OUTPUT_DIR,primitive,f"{task_name}_*.aedat"))
+            list_existing_files = glob.glob(os.path.join(self._OUTPUT_DIR,primitive,f"{task_name}_*.aedat"))
             current_attempt = len(list_existing_files) + 1
 
         while True:
             
             self._set_keep_recording(False)
-            self._set_start_time(const.TIME_PRESS_BUTTON)
+            self._set_start_time(self._TIME_PRESS_BUTTON)
             self._empty_times_list()
 
             # Record data using jAER
@@ -125,7 +130,7 @@ class CaptureSystem:
 
         # Start logging        
         self._add_to_times_list(self._get_start_time()) 
-        self._set_start_time(time.time()+const.TIME_PRESS_BUTTON)
+        self._set_start_time(time.time()+self._TIME_PRESS_BUTTON)
         try: 
             self._send_command_to_jaer((b"startlogging " + self._file_name)) 
         except OSError:
@@ -158,18 +163,18 @@ class CaptureSystem:
         all_ports = serial.tools.list_ports.comports()
         com_port = None
         for port, desc, _ in all_ports:
-            if const.BOARD_TYPE in desc: 
+            if self._BOARD_TYPE in desc: 
                 com_port = port 
-                self._safe_io.print_success(f"{const.BOARD_TYPE} board was found at {com_port}")
+                self._safe_io.print_success(f"{self._BOARD_TYPE} board was found at {com_port}")
         if com_port is None:
-            raise OSError(f"Board {const.BOARD_TYPE} was not found")
+            raise OSError(f"Board {self._BOARD_TYPE} was not found")
 
         # Connect to Arduino
         try:
             self.arduino = serial.Serial(port = com_port, baudrate = 9600, timeout = .1)
         except Exception:
             self._close_capture_system()
-            raise OSError(f"Unable to connect to {const.BOARD_TYPE}")
+            raise OSError(f"Unable to connect to {self._BOARD_TYPE}")
         
         # Start serial thread
         self._set_is_reading_serial(True)
@@ -202,7 +207,7 @@ class CaptureSystem:
                 if self._get_is_recording() is True:
                     current_time = time.time()        
                     self._add_to_times_list(current_time - self._get_start_time())
-                    self._add_to_times_list(current_time - self._get_start_time() + 2*const.TIME_PRESS_BUTTON)
+                    self._add_to_times_list(current_time - self._get_start_time() + 2*self._TIME_PRESS_BUTTON)
                     self._safe_io.print_info("Time was registered")
                 else:
                     self._set_exit_cue(True)
@@ -264,9 +269,9 @@ class CaptureSystem:
         Send given command to jAER
         """
         
-        self._s.sendto(command, (const.UDP_IP, const.UDP_PORT)) 
+        self._s.sendto(command, ("localhost", 8997)) 
         try:
-            self._data = self._s.recvfrom(const.BUFSIZE)
+            self._data = self._s.recvfrom(3000)
         except Exception:
             self._close_capture_system()
             raise OSError(f"Unable to connect to jAER") 

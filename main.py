@@ -1,7 +1,6 @@
 from capture_system import CaptureSystem
 from file_manager import FileManager
 from safe_io import SafeIO
-import constants as const
 
 import glob
 import os
@@ -10,6 +9,8 @@ import os
 
 def main() -> None:
     
+    OUTPUT_DIR = os.path.join(os.path.abspath(""),"data")
+
     selected_option = safe_io.safe_input("Select option: 1 - Record Event Data | 2 - Process File")
     
     # ------------ RECORD EVENT DATA ------------
@@ -31,7 +32,7 @@ def main() -> None:
         if processing_mode == "1":
             
             folder_name = safe_io.safe_input("Input name of folder: ")
-            folder_dir = os.path.join(const.OUTPUT_DIR,folder_name)
+            folder_dir = os.path.join(OUTPUT_DIR,folder_name)
             for file in os.listdir(folder_dir):
                 if file.endswith(".aedat"):
                     file = file[:len(file)-6] # Remove .aedat from file name
@@ -40,18 +41,17 @@ def main() -> None:
 
         elif processing_mode == "2":
             
-            list_all_files = glob.glob(os.path.join(const.OUTPUT_DIR,"*","*.aedat"))
+            list_all_files = glob.glob(os.path.join(OUTPUT_DIR,"*","*.aedat"))
             for file_dir_no_ext in list_all_files:
                 file_dir_no_ext = file_dir_no_ext[:len(file_dir_no_ext)-6] # Remove .aedat from file name
                 file_manager.aedat_to_npy(file_dir_no_ext)
 
 
 if __name__ == "__main__":
-    
+
     capture_system = CaptureSystem() 
     file_manager = FileManager()
     safe_io = SafeIO()
-
     main()
     safe_io.print_success("Program was terminated")
 
