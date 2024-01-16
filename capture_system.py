@@ -1,6 +1,5 @@
 from file_manager import FileManager
 from safe_io import SafeIO
-import constants as const
 
 import glob
 import os
@@ -64,14 +63,15 @@ class CaptureSystem:
         if recording_mode == "1":
             
             #TODO: Get list of primitives automatically by searching for folders
-            
+            PRIMITIVES = ["idle","pick","place","screw"]     
+
             self._safe_io.print_info("Available primitives: ")
-            for element in const.PRIMITIVES:
+            for element in PRIMITIVES:
                 self._safe_io.print_info(f"{element}")
             primitive = self._safe_io.safe_input("Insert name of primitive:")
-            while primitive not in const.PRIMITIVES:
+            while primitive not in PRIMITIVES:
                 self._safe_io.print_error("Please choose one of the available primitives.")
-                for element in const.PRIMITIVES:
+                for element in PRIMITIVES:
                     self._safe_io.print_info(f"{element}")
                 primitive = self._safe_io.safe_input("Insert name of primitive:")
 
