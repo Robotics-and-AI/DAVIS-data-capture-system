@@ -11,7 +11,7 @@ def main() -> None:
     
     OUTPUT_DIR = os.path.join(os.path.abspath(""),"data")
 
-    selected_option = safe_io.safe_input("Select option: 1 - Record Event Data | 2 - Process File")
+    selected_option = safe_io.safe_input("Select option: 1 - Record .aedat | 2 - Create .npy ")
     
     # ------------ RECORD EVENT DATA ------------
 
@@ -27,7 +27,7 @@ def main() -> None:
 
     elif selected_option == "2":
         
-        processing_mode = safe_io.safe_input("Choose processing mode: 1 - Folder | 2 - All Files")
+        processing_mode = safe_io.safe_input("Choose processing mode: 1 - Folder | 2 - All Files ")
         
         if processing_mode == "1":
             

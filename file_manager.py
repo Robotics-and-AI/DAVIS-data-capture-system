@@ -155,19 +155,20 @@ class FileManager:
         if not with_labels:
             times_csv = [[data_list[0]*(10**6)+first_ts, data_list[1]*(10**6)+first_ts]]
             np.savetxt(csv_file_dir, times_csv, delimiter = ", ", fmt = ["%d","%d"])
-            
+        
+        # TODO: Fix problem with timestamps in labeled version
         else:
             times_csv = []
             n_labels = len(data_list)//2
             try:
-                with_labels = list(map(int, self._safe_io.safe_input(f"Insert the {n_labels} label(s) (int):").split()))
+                labels = list(map(int, self._safe_io.safe_input(f"Insert the {n_labels} label(s) (int):").split()))
             except ValueError:
                 raise ValueError("Inserted non-integer labels")
-            while len(with_labels) != n_labels:
-                self._safe_io.print_error(f"{len(with_labels)} label(s) and {n_labels} time(s). Please insert correct amount of label(s):")
-                with_labels = list(map(int, input().split()))
+            while len(labels) != n_labels:
+                self._safe_io.print_error(f"{len(labels)} label(s) and {n_labels} time(s). Please insert correct amount of label(s):")
+                labels = list(map(int, input().split()))
 
             for i in range(n_labels):
-                times_csv.append([with_labels[i],data_list[i]*(10**6)+first_ts, data_list[i+1]*(10**6)+first_ts])
-            np.savetxt(csv_file_dir, times_csv, delimiter = ", ", fmt = ["%d","%.6f","%.6f"])
+                times_csv.append([labels[i],data_list[i]*(10**6)+first_ts, data_list[i+1]*(10**6)+first_ts])
+            np.savetxt(csv_file_dir, times_csv, delimiter = ", ", fmt = ["%d","%d","%d"])
         

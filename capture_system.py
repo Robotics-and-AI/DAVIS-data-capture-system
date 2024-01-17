@@ -77,6 +77,10 @@ class CaptureSystem:
 
             list_existing_files = glob.glob(os.path.join(self._OUTPUT_DIR,primitive,f"{task_name}_*.aedat"))
             current_attempt = len(list_existing_files) + 1
+        
+        else:
+            list_existing_files = glob.glob(os.path.join(self._OUTPUT_DIR,f"{task_name}_*.aedat"))
+            current_attempt = len(list_existing_files) + 1
 
         while True:
             
