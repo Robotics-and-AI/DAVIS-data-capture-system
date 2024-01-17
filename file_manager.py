@@ -146,20 +146,21 @@ class FileManager:
 
     # ------------ WRITE CSV FILE METHOD ------------    
 
-    def write_csv_file(self,data_list:list[int],first_ts:int,csv_file_dir:str,with_labels:bool) -> None:
+    def write_csv_file(self,timestamp_list:list[int],first_ts:int,csv_file_dir:str,with_labels:bool) -> None:
         
         """
         Write timestamps and labels to .csv file
         """
 
         if not with_labels:
-            times_csv = [[data_list[0]*(10**6)+first_ts, data_list[1]*(10**6)+first_ts]]
+            self._safe_io.print_info(timestamp_list)
+            times_csv = [[timestamp_list[0]*(10**6)+first_ts, timestamp_list[-1]*(10**6)+first_ts]]
             np.savetxt(csv_file_dir, times_csv, delimiter = ", ", fmt = ["%d","%d"])
         
-        # TODO: Fix problem with timestamps in labeled version
         else:
+            self._safe_io.print_info(timestamp_list)
             times_csv = []
-            n_labels = len(data_list)//2
+            n_labels = len(timestamp_list)//2
             try:
                 labels = list(map(int, self._safe_io.safe_input(f"Insert the {n_labels} label(s) (int):").split()))
             except ValueError:
@@ -169,6 +170,6 @@ class FileManager:
                 labels = list(map(int, input().split()))
 
             for i in range(n_labels):
-                times_csv.append([labels[i],data_list[i]*(10**6)+first_ts, data_list[i+1]*(10**6)+first_ts])
+                times_csv.append([labels[i],timestamp_list[2*i]*(10**6)+first_ts, timestamp_list[(2*i)+1]*(10**6)+first_ts])
             np.savetxt(csv_file_dir, times_csv, delimiter = ", ", fmt = ["%d","%d","%d"])
         
