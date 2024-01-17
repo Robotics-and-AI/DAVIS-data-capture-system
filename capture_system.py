@@ -20,11 +20,11 @@ class CaptureSystem:
         Record and save event data as .aedat and timestamps in .csv
     """
     
-    def __init__(self):
+    def __init__(self, arduino_board, output_dir, buffer_time):
         
         self._lock = threading.Lock()
         self._safe_io = SafeIO()
-        self._file_manager = FileManager()
+        self._file_manager = FileManager(output_dir)
 
         # jAER variables
         self._is_recording = False
@@ -36,15 +36,15 @@ class CaptureSystem:
         self._file_name = b"a"
 
         # Arduino variables
-        self._BOARD_TYPE = "Genuino Uno"
+        self._BOARD_TYPE = arduino_board
         self._is_reading_serial = False
         self._serial_thread = threading.Thread(target = self._read_serial)
         
         # Other variables
         self._stop_time = 0.0
         self._times_list = []
-        self._TIME_PRESS_BUTTON = 0 # Time (sec) wait after pressing button. Default: 0
-        self._OUTPUT_DIR = os.path.join(os.path.abspath(""),"data")
+        self._TIME_PRESS_BUTTON = buffer_time
+        self._OUTPUT_DIR = output_dir
 
     # ------------ MAIN RECORDING METHOD ------------
 

@@ -7,9 +7,7 @@ import os
 
 # -----------------------------------------
 
-def main() -> None:
-    
-    OUTPUT_DIR = os.path.join(os.path.abspath(""),"data")
+def main(OUTPUT_DIR) -> None:
 
     selected_option = safe_io.safe_input("Select option: 1 - Record .aedat | 2 - Create .npy ")
     
@@ -23,7 +21,7 @@ def main() -> None:
         except Exception as e:
             safe_io.print_error(str(e))
 
-    # ------------ PROCESS FILE ------------
+    # ------------ CREATE NUMPY FILE ------------
 
     elif selected_option == "2":
         
@@ -46,13 +44,20 @@ def main() -> None:
                 file_dir_no_ext = file_dir_no_ext[:len(file_dir_no_ext)-6] # Remove .aedat from file name
                 file_manager.aedat_to_npy(file_dir_no_ext)
 
-
+# -----------------------------------------
+                
 if __name__ == "__main__":
 
-    capture_system = CaptureSystem() 
-    file_manager = FileManager()
+    OUTPUT_DIR = os.path.join(os.path.abspath(""),"data")
+    ARDUINO_BOARD = "Genuino Uno"
+    TIME_PRESS_BUTTON = 0 # Time (sec) to wait after pressing button. Default: 0
+
+    capture_system = CaptureSystem(ARDUINO_BOARD, OUTPUT_DIR, TIME_PRESS_BUTTON) 
+    file_manager = FileManager(OUTPUT_DIR)
     safe_io = SafeIO()
-    main()
+
+    main(OUTPUT_DIR)
+
     safe_io.print_success("Program was terminated")
 
     

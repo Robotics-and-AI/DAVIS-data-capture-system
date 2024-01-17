@@ -24,14 +24,14 @@ class FileManager:
         Write timestamps and labels to .csv file
     """
 
-    def __init__(self):
+    def __init__(self, output_dir):
         
         self._safe_io = SafeIO()
         self._READ_MODE = ">II"
         self._N_BYTES = 8
         self._MASK = [0x003ff000,0x7fc00000,0x800,0]
         self._SHIFT = [12,22,11,31]
-        self._OUTPUT_DIR = os.path.join(os.path.abspath(""),"data")
+        self._OUTPUT_DIR = output_dir
 
     # ------------ AEDAT TO NPY FILE METHOD ------------
 
