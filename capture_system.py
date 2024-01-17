@@ -59,11 +59,13 @@ class CaptureSystem:
         task_name = self._safe_io.safe_input("Insert name of task:")
         self._file_name = task_name.encode()
 
-        primitive = ""
         if recording_mode == "1":
             
-            #TODO: Get list of primitives automatically by searching for folders
-            PRIMITIVES = ["idle","pick","place","screw"]     
+            PRIMITIVES = []
+            for file in os.listdir(self._OUTPUT_DIR):
+                file_path = os.path.join(self._OUTPUT_DIR, file)
+                if os.path.isdir(file_path):
+                    PRIMITIVES.append(file)
 
             self._safe_io.print_info("Available primitives: ")
             for element in PRIMITIVES:
