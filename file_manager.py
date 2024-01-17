@@ -41,7 +41,7 @@ class FileManager:
         Read .aedat file and save event data into .npy file
         """
 
-        if not os.path.exists(f"{file_name_no_ext}.npy"):
+        if not os.path.exists(f"{file_name_no_ext}_events.npy"):
             try:
                 x,y,ts,pol = self.decode_aedat_file(f"{file_name_no_ext}.aedat",False)
             except Exception: 
