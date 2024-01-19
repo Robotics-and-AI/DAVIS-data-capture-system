@@ -47,7 +47,11 @@ class FileManager:
             except Exception: 
                 raise
             
-            array_events = np.array([x,y,ts,pol],dtype = 'int32')
+            try:
+                array_events = np.array([x,y,ts,pol],dtype = 'int32') # If timestamp values are suposed to be > int32, change to int64
+            except Exception:
+                raise OSError("Corrupted file: Timestamp values surpass int32 limit.")
+            
             try:    
                 np.save(f"{file_name_no_ext}_events.npy", array_events)
             except Exception:
