@@ -52,7 +52,8 @@ def main(output_dir) -> None:
 
         elif processing_mode == "2":
             
-            list_all_files = glob.glob(os.path.join(output_dir,"*","*.aedat"))
+            list_all_files = glob.glob(os.path.join(output_dir,"**","*.aedat"),recursive=True)
+            
             for file in list_all_files:
                 file_dir_no_ext = file[:len(file)-6] # Remove .aedat from file name
                 file_manager.aedat_to_npy(file_dir_no_ext)

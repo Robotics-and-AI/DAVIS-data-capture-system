@@ -157,12 +157,10 @@ class FileManager:
         """
 
         if not with_labels:
-            self._safe_io.print_info(timestamp_list)
             times_csv = [[timestamp_list[0]*(10**6)+first_ts, timestamp_list[-1]*(10**6)+first_ts]]
             np.savetxt(csv_file_dir, times_csv, delimiter = ", ", fmt = ["%d","%d"])
         
         else:
-            self._safe_io.print_info(timestamp_list)
             times_csv = []
             n_labels = len(timestamp_list)//2
             try:
