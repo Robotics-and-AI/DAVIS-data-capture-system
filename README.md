@@ -1,5 +1,7 @@
 # DAVIS Data Capture System
 
+[![DOI](https://zenodo.org/badge/741917894.svg)](https://zenodo.org/doi/10.5281/zenodo.10569637)
+
 Event-based data are a lightweight data format for conveying visual information and well-suited for real-time analysis of human motion.  
 However, reliable and easy to use methods for creating event-based datasets are not readily available.
 
