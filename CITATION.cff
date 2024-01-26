@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - affiliation: University of Coimbra
+    alias: laurasfduarte
+    family-names: Duarte
+    given-names: Laura
+    orcid: https://orcid.org/0000-0001-8055-2865
+title: "DAVIS Data Capture System"
+version: 1.0
+doi: 10.5281/zenodo.10569637
+date-released: 2024-01-25
+url: https://github.com/Collaborative-Robotics-and-AI/DAVIS-data-capture-system
+license: Attribution-ShareAlike 4.0 International
+type: software
