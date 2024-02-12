@@ -97,7 +97,7 @@ class App(CTk):
 
     def run_function(self):
         
-        task_name = self.input_task_frame.input_text.get()
+        task_name = self.input_task_frame.get_current_value()
 
         if task_name == "":
             self.print_message(f"Please insert a task name \n")
@@ -137,7 +137,7 @@ class App(CTk):
         
     def confirm_function(self):
         
-        temp_labels = self.input_labels_frame.input_text.get()
+        temp_labels = self.input_labels_frame.get_current_value()
 
         try:
             self.labels = list(map(int, temp_labels.split(",")))
@@ -197,13 +197,7 @@ class ComboFrame(CTkFrame):
         self.combo_box.pack(side="top", expand = True, pady = (0,25))
     
     def get_current_value(self):
-        return self.combo_box.get()    
-
-    def change_state(self, enable):
-        if enable:
-            self.combo_box._state = ctk.NORMAL
-        else:
-            self.combo_box._state = ctk.DISABLED        
+        return self.combo_box.get()      
 
 class InputFrame(CTkFrame):
 
@@ -225,13 +219,7 @@ class InputFrame(CTkFrame):
             self.input_text.pack(side="top", expand = True, pady = (0,20))
     
     def get_current_value(self):
-        return self.input_text.get()    
-
-    def change_state(self, enable):
-        if enable:
-            self.input_text._state = ctk.NORMAL
-        else:
-            self.input_text._state = ctk.DISABLED     
+        return self.input_text.get() 
 
 class RadioFrame(CTkFrame):
 
