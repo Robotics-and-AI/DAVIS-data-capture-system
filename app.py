@@ -5,6 +5,7 @@ from safe_io import SafeIO
 
 import customtkinter as ctk
 import glob
+import numpy as np
 
 
 class App(CTk):
@@ -15,6 +16,8 @@ class App(CTk):
 
         ARDUINO_BOARD = "Genuino Uno"
         TIME_PRESS_BUTTON = 0 # Time (sec) to offset recording after pressing button. Default: 0
+        self.labels = tuple()
+        self.is_confirmed = False
 
         self.output_dir = os.path.join(os.path.abspath(""),"test_data")
         self.file_manager = FileManager(self.output_dir)
@@ -38,11 +41,13 @@ class App(CTk):
         # Add components to recording menu
         self.input_task_frame = InputFrame(r_menu, "Task name:", 1, 0, False)
         self.record_mode_frame = RadioFrame(r_menu, "Choose recording mode:", ["Primitive","Continuous"], 1, 1)
-        input_labels = InputFrame(r_menu, "Input Labels (int) e.g. 1,2,3:", 2, 1, True)
+        self.input_labels_frame = InputFrame(r_menu, "Input Labels (int) e.g. 1,2,3:", 2, 1, True)
+        self.input_labels_frame.button._command = self.confirm_function
         self.select_primitive = ComboFrame(r_menu, "Choose primitive:", folder_options, 2, 0)
         run_button = Button(r_menu, "Run", 3, 0)
         run_button._command = self.run_function
         stop_button = Button(r_menu, "Stop", 3, 1)
+        stop_button._command = self.stop_function
 
         # Processing menu setup
         p_menu = Menu(self, "Process event data", 0)
@@ -63,6 +68,7 @@ class App(CTk):
     def print_message(self, message):
         self.output_text.configure(state = "normal")
         self.output_text.insert(ctk.END,message)
+        self.output_text.see(ctk.END)
         self.output_text.configure(state = "disabled")
 
     def process_function(self):
@@ -104,22 +110,69 @@ class App(CTk):
         self.capture_system._file_name = task_name.encode()
 
         if self.record_mode_frame.radio_button1_enabled: # Primitive
-            recording_mode = "1"
+            with_labels = False
             primitive = self.select_primitive.get_current_value()
             list_existing_files = glob.glob(os.path.join(self.output_dir,primitive,f"{task_name}_*.aedat"))
             current_attempt = len(list_existing_files) + 1
 
         else: # Continuous
-            recording_mode = "2"
+            with_labels = True
             list_existing_files = glob.glob(os.path.join(self.output_dir,f"{task_name}_*.aedat"))
             current_attempt = len(list_existing_files) + 1
             primitive = None
 
         while True:  
             try: 
-                self.capture_system.recording_function(recording_mode, current_attempt, task_name, primitive, True)
+                [final_times_list,first_ts,csv_file_dir] = self.capture_system.recording_function(current_attempt, task_name, primitive)
             except Exception as e:
                 self.print_message(str(e))
+                raise
+            else:
+                self.print_message(f"Recording duration: {(self.capture_system._stop_time-self.capture_system.start_time):.2f} seconds")
+                current_attempt += 1
+                self.write_csv_file_app(final_times_list, first_ts, csv_file_dir, with_labels)
+                self.capture_system._wait_for_button_input("red","Press the Red Button to continue or the White Button to quit.", 200, 10, True)
+        
+    def confirm_function(self):
+        
+        temp_labels = self.input_labels_frame.input_text.get()
+
+        try:
+            self.labels = list(map(int, temp_labels.split(",")))
+        except ValueError:
+            self.print_message("Inserted non-integer labels\n")
+            raise ValueError("Inserted non-integer labels")
+        
+        self.print_message(f"Labels were set\n")
+        self.is_confirmed = True
+
+    def stop_function(self):
+        self.capture_system._close_capture_system()
+        self.print_message(f"Stopped capturing\n")
+
+    def write_csv_file_app(self,timestamp_list:list[int],first_ts:int,csv_file_dir:str,with_labels:bool) -> None:
+        
+        """
+        Write timestamps and labels to .csv file
+        """
+
+        if not with_labels:
+            times_csv = [[timestamp_list[0]*(10**6)+first_ts, timestamp_list[-1]*(10**6)+first_ts]]
+            np.savetxt(csv_file_dir, times_csv, delimiter = ", ", fmt = ["%d","%d"])
+        
+        else:
+            times_csv = []
+            n_labels = len(timestamp_list)//2
+            
+            while len(self.labels) != n_labels:
+                if self.is_confirmed:
+                    self.print_message(f"{len(self.labels)} label(s) and {n_labels} time(s). Please insert correct amount of label(s):")
+                    self.is_confirmed = False
+
+            for i in range(n_labels):
+                times_csv.append([self.labels[i],timestamp_list[2*i]*(10**6)+first_ts, timestamp_list[(2*i)+1]*(10**6)+first_ts])
+            np.savetxt(csv_file_dir, times_csv, delimiter = ", ", fmt = ["%d","%d","%d"])
+
 
 class Button(CTkButton):
 

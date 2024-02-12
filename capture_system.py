@@ -53,7 +53,7 @@ class CaptureSystem:
         """
         Record and save event data as .aedat and timestamps in .csv
         """
-        
+
         try:
             self._start_serial_thread()
         except OSError:
@@ -89,11 +89,22 @@ class CaptureSystem:
             primitive = None
 
         while True:  
-            self.recording_function(recording_mode, current_attempt, task_name, primitive, False)
             
+            [final_times_list,first_ts,csv_file_dir] = self.recording_function(current_attempt, task_name, primitive)
+            self._safe_io.print_info(f"Recording duration: {(self._stop_time-self.start_time):.2f} seconds")
+            current_attempt += 1
+
+            if recording_mode == "1":
+                self._file_manager.write_csv_file(final_times_list,first_ts,csv_file_dir,False) # Without labels
+                
+            elif recording_mode == "2":
+                self._file_manager.write_csv_file(final_times_list,first_ts,csv_file_dir,True) # With labels
+            
+            self._wait_for_button_input("red","Press the Red Button to continue or the White Button to quit.", 200, 10, True)
+
     # ------------ RECORD WITH JAER METHOD ------------
 
-    def recording_function(self, recording_mode, current_attempt, task_name, primitive, in_app) -> None:
+    def recording_function(self, current_attempt, task_name, primitive):
 
         """
         Main looping function of capture()
@@ -121,17 +132,7 @@ class CaptureSystem:
         csv_file_dir = aedat_file_dir.replace(".aedat","_labels.csv")
         final_times_list = self._get_times_list()
 
-        if not in_app:
-            if recording_mode == "1":
-                self._file_manager.write_csv_file(final_times_list,first_ts,csv_file_dir,False) # Without labels
-                
-            elif recording_mode == "2":
-                self._file_manager.write_csv_file(final_times_list,first_ts,csv_file_dir,True) # With labels
-            
-        self._safe_io.print_info(f"Recording duration: {(self._stop_time-self.start_time):.2f} seconds")
-        current_attempt += 1
-        
-        self._wait_for_button_input("red","Press the Red Button to continue or the White Button to quit.", 200, 10, True)
+        return [final_times_list,first_ts,csv_file_dir]
 
     # ------------ RECORD WITH JAER METHOD ------------
             

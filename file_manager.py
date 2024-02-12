@@ -150,7 +150,7 @@ class FileManager:
 
     # ------------ WRITE CSV FILE METHOD ------------    
 
-    def write_csv_file(self,timestamp_list:list[int],first_ts:int,csv_file_dir:str,with_labels:bool,in_app:bool) -> None:
+    def write_csv_file(self,timestamp_list:list[int],first_ts:int,csv_file_dir:str,with_labels:bool) -> None:
         
         """
         Write timestamps and labels to .csv file
@@ -161,18 +161,15 @@ class FileManager:
             np.savetxt(csv_file_dir, times_csv, delimiter = ", ", fmt = ["%d","%d"])
         
         else:
-            
-            if not in_app:
-  
-                times_csv = []
-                n_labels = len(timestamp_list)//2
-                try:
-                    labels = list(map(int, self._safe_io.safe_input(f"Insert the {n_labels} label(s) (int):").split()))
-                except ValueError:
-                    raise ValueError("Inserted non-integer labels")
-                while len(labels) != n_labels:
-                    self._safe_io.print_error(f"{len(labels)} label(s) and {n_labels} time(s). Please insert correct amount of label(s):")
-                    labels = list(map(int, input().split()))
+            times_csv = []
+            n_labels = len(timestamp_list)//2
+            try:
+                labels = list(map(int, self._safe_io.safe_input(f"Insert the {n_labels} label(s) (int):").split()))
+            except ValueError:
+                raise ValueError("Inserted non-integer labels")
+            while len(labels) != n_labels:
+                self._safe_io.print_error(f"{len(labels)} label(s) and {n_labels} time(s). Please insert correct amount of label(s):")
+                labels = list(map(int, input().split()))
 
             for i in range(n_labels):
                 times_csv.append([labels[i],timestamp_list[2*i]*(10**6)+first_ts, timestamp_list[(2*i)+1]*(10**6)+first_ts])
