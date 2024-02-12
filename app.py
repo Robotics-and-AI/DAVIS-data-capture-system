@@ -46,8 +46,9 @@ class App(CTk):
         self.select_primitive = ComboFrame(r_menu, "Choose primitive:", folder_options, 2, 0)
         run_button = Button(r_menu, "Run", 3, 0)
         run_button._command = self.run_function
-        stop_button = Button(r_menu, "Stop", 3, 1)
-        stop_button._command = self.stop_function
+        self.stop_button = Button(r_menu, "Stop", 3, 1)
+        self.stop_button._state = ctk.DISABLED
+        self.stop_button._command = self.stop_function
 
         # Processing menu setup
         p_menu = Menu(self, "Process event data", 0)
@@ -107,6 +108,7 @@ class App(CTk):
             self.print_message(f"{str(e)}\n")
             raise
 
+        self.stop_button._state = ctk.NORMAL
         self.capture_system._file_name = task_name.encode()
 
         if self.record_mode_frame.radio_button1_enabled: # Primitive
@@ -148,6 +150,7 @@ class App(CTk):
 
     def stop_function(self):
         self.capture_system._close_capture_system()
+        self.stop_button._state = ctk.DISABLED
         self.print_message(f"Stopped capturing\n")
 
     def write_csv_file_app(self,timestamp_list:list[int],first_ts:int,csv_file_dir:str,with_labels:bool) -> None:
