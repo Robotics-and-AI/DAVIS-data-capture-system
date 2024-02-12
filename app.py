@@ -36,30 +36,30 @@ class App(CTk):
                 folder_options.append(file)
 
         # Recording menu setup
-        r_menu = Menu(self,"Record event data", (0,1))
-        r_menu.place(relx = 0.02, rely = 0.02, relwidth = 0.56, relheight = 0.81)
+        record_menu = Menu(self,"Record event data", (0,1))
+        record_menu.place(relx = 0.02, rely = 0.02, relwidth = 0.56, relheight = 0.81)
         # Add components to recording menu
-        self.input_task_frame = InputFrame(r_menu, "Task name:", 1, 0, False)
-        self.record_mode_frame = RadioFrame(r_menu, "Choose recording mode:", ["Primitive","Continuous"], 1, 1)
-        self.input_labels_frame = InputFrame(r_menu, "Input Labels (int) e.g. 1,2,3:", 2, 1, True)
+        self.input_task_frame = InputFrame(record_menu, "Task name:", 1, 0, False)
+        self.record_mode_frame = RadioFrame(record_menu, "Choose recording mode:", ["Primitive","Continuous"], 1, 1)
+        self.input_labels_frame = InputFrame(record_menu, "Input Labels (int) e.g. 1,2,3:", 2, 1, True)
         self.input_labels_frame.button._command = self.confirm_function
-        self.select_primitive = ComboFrame(r_menu, "Choose primitive:", folder_options, 2, 0)
-        run_button = Button(r_menu, "Run", 3, 0)
+        self.select_primitive = ComboFrame(record_menu, "Choose primitive:", folder_options, 2, 0)
+        run_button = Button(record_menu, "Run", 3, 0)
         run_button._command = self.run_function
-        self.stop_button = Button(r_menu, "Stop", 3, 1)
+        self.stop_button = Button(record_menu, "Stop", 3, 1)
         self.stop_button._state = ctk.DISABLED
         self.stop_button._command = self.stop_function
 
         # Processing menu setup
-        p_menu = Menu(self, "Process event data", 0)
-        p_menu.place(relx = 0.6, rely = 0.02, relwidth = 0.38, relheight = 0.81)
+        process_menu = Menu(self, "Process event data", 0)
+        process_menu.place(relx = 0.6, rely = 0.02, relwidth = 0.38, relheight = 0.81)
         # Add components to processing menu
-        self.select_folder = ComboFrame(p_menu, "Choose folder:", folder_options, 2, 0)
-        self.process_mode_frame = RadioFrame(p_menu, "Choose processing mode:", ["Folder", "All Files"], 1, 0)
-        process_button = Button(p_menu, "Process", 3, 0)
+        self.select_folder = ComboFrame(process_menu, "Choose folder:", folder_options, 2, 0)
+        self.process_mode_frame = RadioFrame(process_menu, "Choose processing mode:", ["Folder", "All Files"], 1, 0)
+        process_button = Button(process_menu, "Process", 3, 0)
         process_button._command = self.process_function
 
-        # Recording menu setup
+        # Output terminal setup
         self.output_text = CTkTextbox(self, font = ("Arial",12), state = "disabled")
         self.output_text.place(relx = 0.02, rely = 0.85, relwidth = 0.96, relheight = 0.12)
         self.print_message("--------- OUTPUT TERMINAL ---------\n")
