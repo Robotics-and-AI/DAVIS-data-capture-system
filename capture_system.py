@@ -53,8 +53,11 @@ class CaptureSystem:
         """
         Record and save event data as .aedat and timestamps in .csv
         """
-
-        self._start_serial_thread()
+        
+        try:
+            self._start_serial_thread()
+        except OSError:
+            raise
 
         task_name = self._safe_io.safe_input("Insert name of task:")
         self._file_name = task_name.encode()
@@ -85,42 +88,51 @@ class CaptureSystem:
             current_attempt = len(list_existing_files) + 1
             primitive = None
 
-        while True:
+        while True:  
+            self.recording_function(recording_mode, current_attempt, task_name, primitive, False)
             
-            self._set_keep_recording(False)
-            self._set_start_time(self._TIME_PRESS_BUTTON)
-            self._empty_times_list()
+    # ------------ RECORD WITH JAER METHOD ------------
 
-            # Record data using jAER
-            self._set_jaer_is_ready(True)
-            self._record_with_jaer()
-            self._set_jaer_is_ready(False)
+    def recording_function(self, recording_mode, current_attempt, task_name, primitive, in_app) -> None:
 
-            aedat_file_dir = self._file_manager.move_aedat_file(self._data, task_name, current_attempt, primitive)
+        """
+        Main looping function of capture()
+        """
 
-            # Get first timestamp of .aedat file
-            first_ts_us = self._file_manager.decode_aedat_file(aedat_file_dir,True)[2]
-            try:
-                first_ts = first_ts_us[0] # in us
-            except IndexError:
-                self._close_capture_system()
-                raise IndexError("The .aedat file is empty")
+        self._set_keep_recording(False)
+        self._set_start_time(self._TIME_PRESS_BUTTON)
+        self._empty_times_list()
 
-            csv_file_dir = aedat_file_dir.replace(".aedat","_labels.csv")
-            final_times_list = self._get_times_list()
+        # Record data using jAER
+        self._set_jaer_is_ready(True)
+        self._record_with_jaer()
+        self._set_jaer_is_ready(False)
 
+        aedat_file_dir = self._file_manager.move_aedat_file(self._data, task_name, current_attempt, primitive)
+
+        # Get first timestamp of .aedat file
+        first_ts_us = self._file_manager.decode_aedat_file(aedat_file_dir,True)[2]
+        try:
+            first_ts = first_ts_us[0] # in us
+        except IndexError:
+            self._close_capture_system()
+            raise IndexError("The .aedat file is empty")
+
+        csv_file_dir = aedat_file_dir.replace(".aedat","_labels.csv")
+        final_times_list = self._get_times_list()
+
+        if not in_app:
             if recording_mode == "1":
                 self._file_manager.write_csv_file(final_times_list,first_ts,csv_file_dir,False) # Without labels
                 
             elif recording_mode == "2":
                 self._file_manager.write_csv_file(final_times_list,first_ts,csv_file_dir,True) # With labels
-                
-            self._safe_io.print_info(f"Recording duration: {(self._stop_time-self.start_time):.2f} seconds")
-            current_attempt += 1
             
-            self._wait_for_button_input("red","Press the Red Button to continue or the White Button to quit.", 200, 10, True)
+        self._safe_io.print_info(f"Recording duration: {(self._stop_time-self.start_time):.2f} seconds")
+        current_attempt += 1
+        
+        self._wait_for_button_input("red","Press the Red Button to continue or the White Button to quit.", 200, 10, True)
 
-    
     # ------------ RECORD WITH JAER METHOD ------------
             
     def _record_with_jaer(self) -> None:
