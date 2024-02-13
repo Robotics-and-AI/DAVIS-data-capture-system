@@ -1,12 +1,12 @@
 from customtkinter import *
 from file_manager import FileManager
 from capture_system import CaptureSystem
-from safe_io import SafeIO
 
 import customtkinter as ctk
 import glob
 import numpy as np
-
+import threading
+import time
 
 class App(CTk):
     
@@ -14,15 +14,15 @@ class App(CTk):
 
         super().__init__()
 
-        ARDUINO_BOARD = "Genuino Uno"
+        ARDUINO_BOARD = "USB-SERIAL CH340"
         TIME_PRESS_BUTTON = 0 # Time (sec) to offset recording after pressing button. Default: 0
         self.labels = tuple()
         self.is_confirmed = False
+        self._lock = threading.Lock()
 
         self.output_dir = os.path.join(os.path.abspath(""),"test_data")
         self.file_manager = FileManager(self.output_dir)
         self.capture_system = CaptureSystem(ARDUINO_BOARD, self.output_dir, TIME_PRESS_BUTTON) 
-        self.safe_io = SafeIO()
 
         self.title(title)
         self.geometry('720x480')
@@ -63,14 +63,17 @@ class App(CTk):
         self.output_text = CTkTextbox(self, font = ("Arial",12), state = "disabled")
         self.output_text.place(relx = 0.02, rely = 0.85, relwidth = 0.96, relheight = 0.12)
         self.print_message("--------- OUTPUT TERMINAL ---------\n")
+        self.print_message("Press Run and then the Pedal to start recording\n")
 
         self.mainloop()
 
     def print_message(self, message):
-        self.output_text.configure(state = "normal")
-        self.output_text.insert(ctk.END,message)
-        self.output_text.see(ctk.END)
-        self.output_text.configure(state = "disabled")
+        
+        with self._lock:
+            self.output_text.configure(state = "normal")
+            self.output_text.insert(ctk.END,message)
+            self.output_text.see(ctk.END)
+            self.output_text.configure(state = "disabled")
 
     def process_function(self):
         
@@ -98,12 +101,14 @@ class App(CTk):
     def run_function(self):
         
         task_name = self.input_task_frame.get_current_value()
+        paralel_thread = threading.Thread(target = self.capture_system._read_serial)
 
         if task_name == "":
             self.print_message(f"Please insert a task name \n")
+            return
 
         try:
-            self.capture_system._start_serial_thread()
+            self.capture_system._start_serial_thread(paralel_thread)
         except OSError as e:
             self.print_message(f"{str(e)}\n")
             raise
@@ -125,8 +130,9 @@ class App(CTk):
 
         while True:  
             try: 
-                [final_times_list,first_ts,csv_file_dir] = self.capture_system.recording_function(current_attempt, task_name, primitive)
+                [final_times_list,first_ts,csv_file_dir] = self.capture_system.recording_function(current_attempt, task_name, primitive, paralel_thread)
             except Exception as e:
+                self.stop_function(paralel_thread)
                 self.print_message(str(e))
                 raise
             else:
@@ -148,8 +154,8 @@ class App(CTk):
         self.print_message(f"Labels were set\n")
         self.is_confirmed = True
 
-    def stop_function(self):
-        self.capture_system._close_capture_system()
+    def stop_function(self, paralel_thread):
+        self.capture_system._close_capture_system(paralel_thread)
         self.stop_button._state = ctk.DISABLED
         self.print_message(f"Stopped capturing\n")
 
