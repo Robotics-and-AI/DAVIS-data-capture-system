@@ -39,16 +39,12 @@ class App(CTk):
         record_menu = Menu(self,"Record event data", (0,1))
         record_menu.place(relx = 0.02, rely = 0.02, relwidth = 0.56, relheight = 0.81)
         # Add components to recording menu
-        self.input_task_frame = InputFrame(record_menu, "Task name:", 1, 0, False)
-        self.record_mode_frame = RadioFrame(record_menu, "Choose recording mode:", ["Primitive","Continuous"], 1, 1)
-        self.input_labels_frame = InputFrame(record_menu, "Input Labels (int) e.g. 1,2,3:", 2, 1, True)
-        self.input_labels_frame.button._command = self.confirm_function
+        self.input_task_frame = InputFrame(record_menu, "Task name:", 1, 1, False)
+        self.record_mode_frame = RadioFrame(record_menu, "Choose recording mode:", ["Primitive","Continuous"], 1, 0)
         self.select_primitive = ComboFrame(record_menu, "Choose primitive:", folder_options, 2, 0)
-        run_button = Button(record_menu, "Run", 3, 0)
+        run_button = CTkButton(record_menu, text = "Run")
+        run_button.grid(row = 3, column = 0, columnspan = 2, ipadx = 5, ipady = 5)
         run_button._command = self.run_function
-        self.stop_button = Button(record_menu, "Stop", 3, 1)
-        self.stop_button._state = ctk.DISABLED
-        self.stop_button._command = self.stop_function
 
         # Processing menu setup
         process_menu = Menu(self, "Process event data", 0)
@@ -63,7 +59,7 @@ class App(CTk):
         self.output_text = CTkTextbox(self, font = ("Arial",12), state = "disabled")
         self.output_text.place(relx = 0.02, rely = 0.85, relwidth = 0.96, relheight = 0.12)
         self.print_message("--------- OUTPUT TERMINAL ---------\n")
-        self.print_message("Press Run and then the Pedal to start recording\n")
+        self.print_message("INSTRUCTIONS: Click on the Run button and then press the Pedal to start recording\n")
 
         self.mainloop()
 
@@ -108,12 +104,11 @@ class App(CTk):
             return
 
         try:
-            self.capture_system._start_serial_thread(paralel_thread)
+            self.capture_system._start_paralel_thread(paralel_thread)
         except OSError as e:
             self.print_message(f"{str(e)}\n")
             raise
 
-        self.stop_button._state = ctk.NORMAL
         self.capture_system._file_name = task_name.encode()
 
         if self.record_mode_frame.radio_button1_enabled: # Primitive
@@ -121,26 +116,26 @@ class App(CTk):
             primitive = self.select_primitive.get_current_value()
             list_existing_files = glob.glob(os.path.join(self.output_dir,primitive,f"{task_name}_*.aedat"))
             current_attempt = len(list_existing_files) + 1
-
+    
         else: # Continuous
             with_labels = True
             list_existing_files = glob.glob(os.path.join(self.output_dir,f"{task_name}_*.aedat"))
             current_attempt = len(list_existing_files) + 1
             primitive = None
 
-        while True:  
+        while True:
             try: 
                 [final_times_list,first_ts,csv_file_dir] = self.capture_system.recording_function(current_attempt, task_name, primitive, paralel_thread)
             except Exception as e:
-                self.stop_function(paralel_thread)
+                self.terminate_thread(paralel_thread)
                 self.print_message(str(e))
                 raise
             else:
-                self.print_message(f"Recording duration: {(self.capture_system._stop_time-self.capture_system.start_time):.2f} seconds")
+                self.print_message(f"Recording duration: {(self.capture_system._stop_time-self.capture_system.start_time):.2f} seconds\n")
                 current_attempt += 1
-                self.write_csv_file_app(final_times_list, first_ts, csv_file_dir, with_labels)
-                self.capture_system._wait_for_button_input("red","Press the Red Button to continue or the White Button to quit.", 200, 10, True)
-        
+                self.file_manager.write_csv_file(final_times_list, first_ts, csv_file_dir, with_labels)
+                self.capture_system._wait_for_button_input("red","Press the Red Button to continue or the White Button to quit.", 200, 10, True, paralel_thread)
+
     def confirm_function(self):
         
         temp_labels = self.input_labels_frame.get_current_value()
@@ -154,34 +149,9 @@ class App(CTk):
         self.print_message(f"Labels were set\n")
         self.is_confirmed = True
 
-    def stop_function(self, paralel_thread):
+    def terminate_thread(self, paralel_thread):
         self.capture_system._close_capture_system(paralel_thread)
-        self.stop_button._state = ctk.DISABLED
         self.print_message(f"Stopped capturing\n")
-
-    def write_csv_file_app(self,timestamp_list:list[int],first_ts:int,csv_file_dir:str,with_labels:bool) -> None:
-        
-        """
-        Write timestamps and labels to .csv file
-        """
-
-        if not with_labels:
-            times_csv = [[timestamp_list[0]*(10**6)+first_ts, timestamp_list[-1]*(10**6)+first_ts]]
-            np.savetxt(csv_file_dir, times_csv, delimiter = ", ", fmt = ["%d","%d"])
-        
-        else:
-            times_csv = []
-            n_labels = len(timestamp_list)//2
-            
-            while len(self.labels) != n_labels:
-                if self.is_confirmed:
-                    self.print_message(f"{len(self.labels)} label(s) and {n_labels} time(s). Please insert correct amount of label(s):")
-                    self.is_confirmed = False
-
-            for i in range(n_labels):
-                times_csv.append([self.labels[i],timestamp_list[2*i]*(10**6)+first_ts, timestamp_list[(2*i)+1]*(10**6)+first_ts])
-            np.savetxt(csv_file_dir, times_csv, delimiter = ", ", fmt = ["%d","%d","%d"])
-
 
 class Button(CTkButton):
 
@@ -198,7 +168,7 @@ class ComboFrame(CTkFrame):
         self.combo_box = CTkComboBox(self, values = primitives, state = "readonly")
         self.combo_box.set("idle")
     
-        self.grid(row = r, column = c, sticky="nsew", padx = 10, pady = 10)
+        self.grid(row = r, column = c, columnspan = 2, sticky="nsew", padx = 10, pady = 10)
         self.label.pack(side="top", expand = True, pady = (15,0))
         self.combo_box.pack(side="top", expand = True, pady = (0,25))
     

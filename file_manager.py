@@ -164,12 +164,12 @@ class FileManager:
             times_csv = []
             n_labels = len(timestamp_list)//2
             try:
-                labels = list(map(int, self._safe_io.safe_input(f"Insert the {n_labels} label(s) (int):").split()))
+                labels = list(map(int, self._safe_io.safe_input(f"Insert the {n_labels} label(s) (int):").split(",")))
             except ValueError:
                 raise ValueError("Inserted non-integer labels")
             while len(labels) != n_labels:
                 self._safe_io.print_error(f"{len(labels)} label(s) and {n_labels} time(s). Please insert correct amount of label(s):")
-                labels = list(map(int, input().split()))
+                labels = list(map(int, input().split(",")))
 
             for i in range(n_labels):
                 times_csv.append([labels[i],timestamp_list[2*i]*(10**6)+first_ts, timestamp_list[(2*i)+1]*(10**6)+first_ts])

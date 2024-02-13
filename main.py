@@ -63,7 +63,7 @@ def main(output_dir) -> None:
 if __name__ == "__main__":
 
     OUTPUT_DIR = os.path.join(os.path.abspath(""),"test_data")
-    ARDUINO_BOARD = "Genuino Uno"
+    ARDUINO_BOARD = "USB-SERIAL CH340"
     TIME_PRESS_BUTTON = 0 # Time (sec) to offset recording after pressing button. Default: 0
 
     capture_system = CaptureSystem(ARDUINO_BOARD, OUTPUT_DIR, TIME_PRESS_BUTTON) 

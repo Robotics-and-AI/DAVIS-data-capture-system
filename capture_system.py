@@ -55,7 +55,7 @@ class CaptureSystem:
 
         paralel_thread = threading.Thread(target = self._read_serial)
         try:
-            self._start_serial_thread(paralel_thread)
+            self._start_paralel_thread(paralel_thread)
         except OSError:
             raise
 
@@ -104,7 +104,7 @@ class CaptureSystem:
 
     # ------------ RECORD WITH JAER METHOD ------------
 
-    def recording_function(self, current_attempt, task_name, primitive, serial_thread):
+    def recording_function(self, current_attempt, task_name, primitive, paralel_thread):
 
         """
         Main looping function of capture()
@@ -116,7 +116,7 @@ class CaptureSystem:
 
         # Record data using jAER
         self._set_jaer_is_ready(True)
-        self._record_with_jaer(serial_thread)
+        self._record_with_jaer(paralel_thread)
         self._set_jaer_is_ready(False)
 
         aedat_file_dir = self._file_manager.move_aedat_file(self._data, task_name, current_attempt, primitive)
@@ -126,7 +126,7 @@ class CaptureSystem:
         try:
             first_ts = first_ts_us[0] # in us
         except IndexError:
-            self._close_capture_system(serial_thread)
+            self._close_capture_system(paralel_thread)
             raise IndexError("The .aedat file is empty")
 
         csv_file_dir = aedat_file_dir.replace(".aedat","_labels.csv")
@@ -136,45 +136,45 @@ class CaptureSystem:
 
     # ------------ RECORD WITH JAER METHOD ------------
             
-    def _record_with_jaer(self, serial_thread) -> None:
+    def _record_with_jaer(self, paralel_thread) -> None:
         
         """
         Send commands to jAER to start and stop recording
         """
 
         try: 
-            self._wait_for_button_input("pedal","Press the Pedal to start recording...", 500, 10, True, serial_thread)
+            self._wait_for_button_input("pedal","Press the Pedal to start recording...", 500, 10, True, paralel_thread)
         except RuntimeError:
-            self._close_capture_system(serial_thread)
+            self._close_capture_system(paralel_thread)
             raise
 
         # Start logging        
         self._add_to_times_list(self._get_start_time()) 
         self._set_start_time(time.time()+self._TIME_PRESS_BUTTON)
         try: 
-            self._send_command_to_jaer((b"startlogging " + self._file_name),serial_thread) 
+            self._send_command_to_jaer((b"startlogging " + self._file_name),paralel_thread) 
         except OSError:
-            self._close_capture_system(serial_thread)
+            self._close_capture_system(paralel_thread)
             raise     
 
         try:
-            self._wait_for_button_input("pedal","Press the Pedal to stop recording...", 3000, 10, False, serial_thread)
+            self._wait_for_button_input("pedal","Press the Pedal to stop recording...", 3000, 10, False, paralel_thread)
         except RuntimeError:
-            self._close_capture_system(serial_thread)
+            self._close_capture_system(paralel_thread)
             raise
 
         # Stop logging
         self._set_stop_time(time.time())
         self._add_to_times_list(self._get_stop_time()-self._get_start_time())
         try:
-            self._send_command_to_jaer(b"stoplogging", serial_thread)
+            self._send_command_to_jaer(b"stoplogging", paralel_thread)
         except OSError:
-            self._close_capture_system(serial_thread)
+            self._close_capture_system(paralel_thread)
             raise 
 
     # ------------ START SERIAL THREAD METHOD ------------
         
-    def _start_serial_thread(self, serial_thread) -> None:
+    def _start_paralel_thread(self, paralel_thread: threading.Thread) -> None:
 
         """
         Connect to arduino and start serial thread
@@ -193,12 +193,12 @@ class CaptureSystem:
         try:
             self.arduino = serial.Serial(port = com_port, baudrate = 9600, timeout = .1)
         except Exception:
-            self._close_capture_system(serial_thread)
+            self._close_capture_system(paralel_thread)
             raise OSError(f"Unable to connect to {self._BOARD_TYPE}")
         
         # Start serial thread
         self._set_is_reading_serial(True)
-        serial_thread.start()
+        paralel_thread.start()
 
     # ------------ READ SERIAL (THREAD) METHOD ------------
         
@@ -240,7 +240,7 @@ class CaptureSystem:
 
     # ------------ WAIT FOR BUTTON INPUT METHOD ------------
                     
-    def _wait_for_button_input(self, button:str, text: str, n_cycles: int, max_wait: int, condition: bool, serial_thread) -> None:   
+    def _wait_for_button_input(self, button:str, text: str, n_cycles: int, max_wait: int, condition: bool, paralel_thread) -> None:   
         
         """
         Wait for specific button input until max_wait
@@ -258,7 +258,7 @@ class CaptureSystem:
                     self._safe_io.print_warning(text) # Warn that capture() is waiting for button prompt
                     counter_wait += 1
                 elif counter_wait == max_wait: # Timeout condition
-                    self._close_capture_system(serial_thread)
+                    self._close_capture_system(paralel_thread)
                     raise RuntimeError(f"No input detected. Function timed out.")
                 else:
                     counter += 1
@@ -267,7 +267,7 @@ class CaptureSystem:
             while self._get_keep_recording() is not condition:
                 
                 if self._get_exit_cue():
-                    self._close_capture_system(serial_thread)
+                    self._close_capture_system(paralel_thread)
                     raise OSError(f"Exit program.")
                 
                 time.sleep(0.01) # n_cycles = 100 -> approx. 1 second
@@ -276,14 +276,14 @@ class CaptureSystem:
                     self._safe_io.print_warning(text) # Warn that capture() is waiting for button prompt
                     counter_wait += 1
                 elif counter_wait == max_wait: # Timeout condition
-                    self._close_capture_system(serial_thread)
+                    self._close_capture_system(paralel_thread)
                     raise RuntimeError(f"No input detected. Function timed out.")
                 else:
                     counter += 1
 
     # ------------ SEND COMMAND TO JAER METHOD ------------
         
-    def _send_command_to_jaer(self,command: bytes, serial_thread) -> None:
+    def _send_command_to_jaer(self,command: bytes, paralel_thread) -> None:
         
         """
         Send given command to jAER
@@ -293,19 +293,19 @@ class CaptureSystem:
         try:
             self._data = self._s.recvfrom(3000)
         except Exception:
-            self._close_capture_system(serial_thread)
+            self._close_capture_system(paralel_thread)
             raise OSError(f"Unable to connect to jAER") 
 
     # ------------ CLOSE CAPTURE SYSTEM METHOD ------------
     
-    def _close_capture_system(self, serial_thread) -> None:
+    def _close_capture_system(self, paralel_thread:threading.Thread) -> None:
     
         """
         Terminate thread and serial connection
         """
     
         self._set_is_reading_serial(False)
-        serial_thread.join()
+        paralel_thread.join()
         self.arduino.close()
 
     # ------------ SETTER AND GETTER METHODS ------------
