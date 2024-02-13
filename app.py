@@ -37,7 +37,7 @@ class App(CTk):
 
         # Recording menu setup
         record_menu = Menu(self,"Record event data", (0,1))
-        record_menu.place(relx = 0.02, rely = 0.02, relwidth = 0.56, relheight = 0.81)
+        record_menu.place(relx = 0.02, rely = 0.02, relwidth = 0.56, relheight = 0.71)
         # Add components to recording menu
         self.input_task_frame = InputFrame(record_menu, "Task name:", 1, 1, False)
         self.record_mode_frame = RadioFrame(record_menu, "Choose recording mode:", ["Primitive","Continuous"], 1, 0)
@@ -48,7 +48,7 @@ class App(CTk):
 
         # Processing menu setup
         process_menu = Menu(self, "Process event data", 0)
-        process_menu.place(relx = 0.6, rely = 0.02, relwidth = 0.38, relheight = 0.81)
+        process_menu.place(relx = 0.6, rely = 0.02, relwidth = 0.38, relheight = 0.71)
         # Add components to processing menu
         self.select_folder = ComboFrame(process_menu, "Choose folder:", folder_options, 2, 0)
         self.process_mode_frame = RadioFrame(process_menu, "Choose processing mode:", ["Folder", "All Files"], 1, 0)
@@ -57,17 +57,26 @@ class App(CTk):
 
         # Output terminal setup
         self.output_text = CTkTextbox(self, font = ("Arial",12), state = "disabled")
-        self.output_text.place(relx = 0.02, rely = 0.85, relwidth = 0.96, relheight = 0.12)
-        self.print_message("--------- OUTPUT TERMINAL ---------\n")
-        self.print_message("INSTRUCTIONS: Click on the Run button and then press the Pedal to start recording\n")
+        self.output_text.place(relx = 0.02, rely = 0.75, relwidth = 0.96, relheight = 0.22)
+        self.output_text.tag_config("error", foreground="red")
+        self.output_text.tag_config("info", foreground="blue")
+        self.output_text.tag_config("normal", foreground="black")
+        self.print_message("--------- OUTPUT TERMINAL ---------\n", "normal")
+        self.print_message("INSTRUCTIONS: Click on the Run button and then press the Pedal to start recording\n", "normal")
+        self.print_message("----------------------------------------------\n", "normal")
 
         self.mainloop()
 
-    def print_message(self, message):
+    def print_message(self, message, tag):
         
         with self._lock:
             self.output_text.configure(state = "normal")
-            self.output_text.insert(ctk.END,message)
+            if tag == "error":
+                self.output_text.insert(ctk.END,message,"error")
+            elif tag == "info":
+                self.output_text.insert(ctk.END,message,"info")
+            elif tag == "normal":
+                self.output_text.insert(ctk.END,message,"normal")
             self.output_text.see(ctk.END)
             self.output_text.configure(state = "disabled")
 
@@ -82,7 +91,7 @@ class App(CTk):
                 file_dir_no_ext = file[:len(file)-6] # Remove .aedat from file name
                 self.file_manager.aedat_to_npy(file_dir_no_ext)
 
-            self.print_message(f"Finished processing {len(list_all_files)} file(s) in the {folder} folder\n")
+            self.print_message(f"Finished processing {len(list_all_files)} file(s) in the {folder} folder\n", "info")
 
         else:
 
@@ -92,7 +101,7 @@ class App(CTk):
                 file_dir_no_ext = file[:len(file)-6] # Remove .aedat from file name
                 self.file_manager.aedat_to_npy(file_dir_no_ext)
 
-            self.print_message(f"Finished processing all {len(list_all_files)} available .aedat files\n")
+            self.print_message(f"Finished processing all {len(list_all_files)} available .aedat files\n", "info")
 
     def run_function(self):
         
@@ -100,14 +109,14 @@ class App(CTk):
         paralel_thread = threading.Thread(target = self.capture_system._read_serial)
 
         if task_name == "":
-            self.print_message(f"Please insert a task name \n")
+            self.print_message(f"Insert the task name\n", "error")
             return
 
         try:
             self.capture_system._start_paralel_thread(paralel_thread)
         except OSError as e:
-            self.print_message(f"{str(e)}\n")
-            raise
+            self.print_message(f"{e}\n", "error")
+            return
 
         self.capture_system._file_name = task_name.encode()
 
@@ -128,30 +137,25 @@ class App(CTk):
                 [final_times_list,first_ts,csv_file_dir] = self.capture_system.recording_function(current_attempt, task_name, primitive, paralel_thread)
             except Exception as e:
                 self.terminate_thread(paralel_thread)
-                self.print_message(str(e))
-                raise
+                self.print_message(f"{e}\n", "error")
+                return
             else:
-                self.print_message(f"Recording duration: {(self.capture_system._stop_time-self.capture_system.start_time):.2f} seconds\n")
                 current_attempt += 1
                 self.file_manager.write_csv_file(final_times_list, first_ts, csv_file_dir, with_labels)
-                self.capture_system._wait_for_button_input("red","Press the Red Button to continue or the White Button to quit.", 200, 10, True, paralel_thread)
+                self.print_message(f"Data was saved in {csv_file_dir}\n", "info")
+                self.print_message(f"Recording duration: {(self.capture_system._stop_time-self.capture_system.start_time):.2f} seconds\n", "info")
+                self.print_message("----------------------------------------------\n", "info")
 
-    def confirm_function(self):
-        
-        temp_labels = self.input_labels_frame.get_current_value()
-
-        try:
-            self.labels = list(map(int, temp_labels.split(",")))
-        except ValueError:
-            self.print_message("Inserted non-integer labels\n")
-            raise ValueError("Inserted non-integer labels")
-        
-        self.print_message(f"Labels were set\n")
-        self.is_confirmed = True
+                try:
+                    self.capture_system._wait_for_button_input("red","Press the Red Button to continue or the White Button to quit.", 200, 10, True, paralel_thread)
+                except Exception as e:
+                    self.print_message("Capture closed\n", "error")
+                    self.print_message("----------------------------------------------\n", "normal")
+                    return
 
     def terminate_thread(self, paralel_thread):
         self.capture_system._close_capture_system(paralel_thread)
-        self.print_message(f"Stopped capturing\n")
+        self.print_message(f"Stopped capturing\n", "error")
 
 class Button(CTkButton):
 
@@ -232,7 +236,7 @@ class Menu(CTkFrame):
         self.place(x = 0, y = 0, relwidth = 1, relheight = 1)
 
         self.rowconfigure((0,3), weight = 1, uniform = "a")
-        self.rowconfigure((1,2), weight = 3, uniform = "a")
+        self.rowconfigure((1,2), weight = 2, uniform = "a")
         self.columnconfigure(cconfig, weight = 1, uniform = "a")
 
         title = CTkLabel(self, text = title, font = ("Arial",18))
