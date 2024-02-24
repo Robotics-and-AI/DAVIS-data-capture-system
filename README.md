@@ -7,7 +7,7 @@ However, reliable and easy to use methods for creating event-based datasets are 
 
 This repository features custom-built Python code to aid researchers in capturing DAVIS240C samples for an event-based dataset.
 
-The code was used to record and process the DAVIS Dataset of Manufacturing Assembly Tasks, which is available <a href="https://zenodo.org/records/10562564">here</a>
+The code was used to record and process the DAVIS Dataset of Manufacturing Assembly Tasks, which is available <a href="https://zenodo.org/records/10562563">here</a>
 
 The repository requires the use <a href="http://jaerproject.org">jAER</a> open-source software, designed to display and record event data. The Python code interfaces with the jAER software by sending it commands through a UDP connection to start and stop logging data. It also makes use of an Arduino connected through a serial connection to trigger these commands to start and end the recordings.
 
