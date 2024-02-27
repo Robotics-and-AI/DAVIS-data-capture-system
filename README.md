@@ -13,3 +13,7 @@ The repository requires the use <a href="http://jaerproject.org">jAER</a> open-s
 
 All data are captured in raw form (.aedat) and can processed into numpy arrays for ease of use (.npy). 
 
+# Quick Guide:
+
+https://github.com/Robotics-and-AI/DAVIS-data-capture-system/assets/51830421/2bc077db-7d8b-42b5-8b7f-f3ceca41b789
+
