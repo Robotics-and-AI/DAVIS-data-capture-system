@@ -15,5 +15,7 @@ All data are captured in raw form (.aedat) and can processed into numpy arrays f
 
 # Quick Guide:
 
-https://github.com/Robotics-and-AI/DAVIS-data-capture-system/assets/51830421/2bc077db-7d8b-42b5-8b7f-f3ceca41b789
+https://github.com/Robotics-and-AI/DAVIS-data-capture-system/assets/51830421/c35af5b6-fd45-4fec-96b5-e5b64c13b03d
+
+
 
