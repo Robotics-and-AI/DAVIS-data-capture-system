@@ -13,7 +13,21 @@ The repository requires the use <a href="http://jaerproject.org">jAER</a> open-s
 
 All data are captured in raw form (.aedat) and can processed into numpy arrays for ease of use (.npy). 
 
-# Quick Guide:
+## Cite our paper:
+If you've found this work useful for your research, please cite our paper as follows:
+
+```
+@article{Duarte2024,
+         title = {Event-based dataset for the detection and classification of manufacturing assembly tasks},
+         author = {Laura Duarte and Pedro Neto},
+         journal = {Data in Brief},
+         volume = {54},
+         year = {2024},
+         doi = {https://doi.org/10.1016/j.dib.2024.110340}
+}
+```
+
+## Quick Guide:
 
 https://github.com/Robotics-and-AI/DAVIS-data-capture-system/assets/51830421/bc4b0a39-a13c-43cc-83f2-29406e9562aa
 
