@@ -1,19 +1,31 @@
 # DAVIS Data Capture System
 
 [![DOI](https://zenodo.org/badge/741917894.svg)](https://zenodo.org/doi/10.5281/zenodo.10569637)
+[![Paper](https://img.shields.io/badge/Paper-10.1016/j.dib.2024.110340-blue)](https://doi.org/10.1016/j.dib.2024.110340)
+[![Dataset](https://img.shields.io/badge/Dataset-10.5281/zenodo.10688518-blue)](https://doi.org/10.5281/zenodo.10688518)
 
-Event-based data are a lightweight data format for conveying visual information and well-suited for real-time analysis of human motion.  
-However, reliable and easy to use methods for creating event-based datasets are not readily available.
+## Introduction
 
-This repository features custom-built Python code to aid researchers in capturing DAVIS240C samples for an event-based dataset.
+Event-based sensors encode visual information asynchronously with low latency and high temporal resolution.  
+However, event-based datasets are scarce and user-friendly methods for creating said datasets are not readily available.
 
-The code was used to record and process the DAVIS Dataset of Manufacturing Assembly Tasks, which is available <a href="https://zenodo.org/records/10562563">here</a>
+This repository contributes with custom-built Python code to aid researchers to capture DAVIS240C videos for an event-based dataset.  
+The code was used to record and process the <a href="https://zenodo.org/records/10562563">Event-based Dataset of Assembly Tasks (EDAT24)</a>.
 
-The repository requires the use <a href="http://jaerproject.org">jAER</a> open-source software, designed to display and record event data. The Python code interfaces with the jAER software by sending it commands through a UDP connection to start and stop logging data. It also makes use of an Arduino connected through a serial connection to trigger these commands to start and end the recordings.
+The Python code interfaces with the jAER software by sending it commands through a UDP connection to start and stop logging data.  
+All data are captured in raw form (.aedat) and can processed into numpy arrays for ease of use (.npy).
 
-All data are captured in raw form (.aedat) and can processed into numpy arrays for ease of use (.npy). 
+## Requirements
 
-## Cite our paper:
+- A <a href="https://docs.inivation.com/_static/hardware_guides/davis240.pdf">DAVIS240C event camera</a> - to obtain the data
+- The <a href="http://jaerproject.org">jAER open-source software</a> - to display and record event data
+- An <a href="https://www.arduino.cc">Arduino board</a> - to trigger the commands to start and end the recordings
+
+A detailed explanation on how to utilize the code is provided below.
+
+https://github.com/Robotics-and-AI/DAVIS-data-capture-system/assets/51830421/bc4b0a39-a13c-43cc-83f2-29406e9562aa
+
+## Cite our paper
 If you've found this work useful for your research, please cite our paper as follows:
 
 ```
@@ -26,10 +38,6 @@ If you've found this work useful for your research, please cite our paper as fol
          doi = {https://doi.org/10.1016/j.dib.2024.110340}
 }
 ```
-
-## Quick Guide:
-
-https://github.com/Robotics-and-AI/DAVIS-data-capture-system/assets/51830421/bc4b0a39-a13c-43cc-83f2-29406e9562aa
 
 
 
