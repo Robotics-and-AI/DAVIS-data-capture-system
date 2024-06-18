@@ -11,20 +11,20 @@ Event-based datasets are scarce, so user-friendly methods for creating said data
 This repository contributes with code to record a dataset with a DAVIS240C event camera.  
 The code was used to record and process the <a href="https://zenodo.org/records/10562563">Event-based Dataset of Assembly Tasks (EDAT24)</a>.
 
-All data are captured in raw form (.aedat) and can processed into numpy arrays (.npy) for ease of use.
+All data are captured in raw form (.aedat) and can be processed into numpy arrays (.npy) for ease of use.
 
 ## Requirements
 
 - A <a href="https://docs.inivation.com/_static/hardware_guides/davis240.pdf">DAVIS240C event camera</a> - to obtain the data
-- The <a href="http://jaerproject.org">jAER open-source software</a> - to display and record event data
+- The <a href="http://jaerproject.org">jAER open-source software</a> - to display and record the data
 - An <a href="https://www.arduino.cc">Arduino board</a> - to trigger the commands to start and end the recordings
 
-A detailed explanation on how to utilize the code is provided below.
+A detailed explanation on how to utilize the code is provided below
 
 https://github.com/Robotics-and-AI/DAVIS-data-capture-system/assets/51830421/bc4b0a39-a13c-43cc-83f2-29406e9562aa
 
 ## Cite our paper
-If you've found this work useful for your research, please cite our paper as follows:
+If you've found this work useful for your research, please cite our paper as follows
 
 ```
 @article{Duarte2024,
