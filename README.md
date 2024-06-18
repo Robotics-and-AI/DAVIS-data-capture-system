@@ -7,13 +7,12 @@
 ## Introduction
 
 Event-based sensors encode visual information asynchronously with low latency and high temporal resolution.  
-However, event-based datasets are scarce and user-friendly methods for creating said datasets are not readily available.
+Event-based datasets are scarce, so user-friendly methods for creating said datasets are required.
 
-This repository contributes with custom-built Python code to aid researchers to capture DAVIS240C videos for an event-based dataset.  
-The code was used to record and process the <a href="https://zenodo.org/records/10562563">Event-based Dataset of Assembly Tasks (EDAT24)</a>.
+This repository contributes with code to record a dataset with a DAVIS240C event camera.  
+It code was used to record and process the <a href="https://zenodo.org/records/10562563">Event-based Dataset of Assembly Tasks (EDAT24)</a>.
 
-The Python code interfaces with the jAER software by sending it commands through a UDP connection to start and stop logging data.  
-All data are captured in raw form (.aedat) and can processed into numpy arrays for ease of use (.npy).
+All data are captured in raw form (.aedat) and can processed into numpy arrays (.npy) for ease of use.
 
 ## Requirements
 
