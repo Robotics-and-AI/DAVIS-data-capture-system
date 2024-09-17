@@ -14,7 +14,7 @@ class App(CTk):
 
         super().__init__()
 
-        ARDUINO_BOARD = "USB-SERIAL CH340"
+        ARDUINO_BOARD = "Genuino Uno" #"USB-SERIAL CH340"
         TIME_PRESS_BUTTON = 0 # Time (sec) to offset recording after pressing button. Default: 0
         self.labels = tuple()
         self.is_confirmed = False
