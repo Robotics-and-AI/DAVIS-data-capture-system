@@ -80,7 +80,7 @@ class FileManager:
 
         bytes_pos = 0
         line = aer_file.readline()
-        while str(line)[2] == "#": # Ignore ASCII header
+        while line and line[0:1] == b'#': # Ignore ASCII header
             bytes_pos += len(line)
             line = aer_file.readline()            
             
@@ -104,6 +104,16 @@ class FileManager:
             aer_file.seek(bytes_pos)
             aer_raw_data = aer_file.read(self._N_BYTES)
             bytes_pos += self._N_BYTES
+
+        ts = np.subtract(ts,ts[0]) # start ts array always from 0
+
+        try:
+            print ("read %i (~ %.2fM) AE events, duration= %.2fs" % (len(ts), len(ts) / float(10 ** 6), (ts[-1] - ts[0]) * 0.000001))
+            n = 5
+            print ("showing first %i:" % (n))
+            print ("timestamps: %s \nX-addr: %s\nY-addr: %s\npolarity: %s" % (ts[0:n], x[0:n], y[0:n], pol[0:n]))
+        except:
+            print ("failed to print statistics")
 
         return x,y,ts,pol
 
