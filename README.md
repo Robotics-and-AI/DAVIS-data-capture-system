@@ -9,7 +9,9 @@ Event-based sensors encode visual information asynchronously with low latency an
 Event-based datasets are scarce, so user-friendly methods for creating said datasets are required.
 
 This repository contributes with code to record a dataset with a DAVIS240C event camera.  
-The code was used to record and process the <a href="https://zenodo.org/records/10562563">Event-based Dataset of Assembly Tasks (EDAT24)</a>.
+The code was used to record and process the following open-source event-based datasets:
+- <a href="https://zenodo.org/records/10562563">Event-based Dataset of Assembly Tasks (EDAT24)</a> 
+- <a href="https://doi.org/10.5281/zenodo.15005301">Re-defined Event-based Dataset of Assembly Tasks (REDAT24)</a>.
 
 All data are captured in raw form (.aedat) and can be processed into numpy arrays (.npy) for ease of use.
 
